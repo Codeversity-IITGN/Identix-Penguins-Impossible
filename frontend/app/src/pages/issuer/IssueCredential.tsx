@@ -13,8 +13,9 @@ const IssueCredential = () => {
   const { issuerDID, issueCredential } = useIssuer();
   const [loading, setLoading] = useState(false);
   const [issued, setIssued] = useState<Credential | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
-    holderDID: "",
+    holderClaimKey: "",
     holderName: "",
     type: "Educational" as Credential["type"],
     degree: "",
@@ -26,19 +27,25 @@ const IssueCredential = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
-    const cred = await issueCredential({
-      type: form.type,
-      holderDID: form.holderDID,
-      holderName: form.holderName,
-      subject: {
-        degree: form.degree,
-        field: form.field,
-        institution: form.institution,
-      },
-    });
-    setIssued(cred);
-    setLoading(false);
+    try {
+      const cred = await issueCredential({
+        type: form.type,
+        holderClaimKey: form.holderClaimKey,
+        holderName: form.holderName,
+        subject: {
+          degree: form.degree,
+          field: form.field,
+          institution: form.institution,
+        },
+      });
+      setIssued(cred);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to issue credential");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (issued) {
@@ -59,7 +66,7 @@ const IssueCredential = () => {
           </div>
 
           <div className="flex gap-3 justify-center">
-            <Button onClick={() => { setIssued(null); setForm({ holderDID: "", holderName: "", type: "Educational", degree: "", field: "", institution: "" }); }}>
+            <Button onClick={() => { setIssued(null); setForm({ holderClaimKey: "", holderName: "", type: "Educational", degree: "", field: "", institution: "" }); }}>
               Issue another
             </Button>
             <Button asChild variant="outline">
@@ -92,8 +99,9 @@ const IssueCredential = () => {
           </div>
 
           <div>
-            <Label htmlFor="holderDID">Holder DID</Label>
-            <Input id="holderDID" value={form.holderDID} onChange={(e) => update("holderDID", e.target.value)} placeholder="did:ethr:0x..." className="mt-1 font-mono" required />
+            <Label htmlFor="holderClaimKey">Holder claim key</Label>
+            <Input id="holderClaimKey" value={form.holderClaimKey} onChange={(e) => { setError(null); update("holderClaimKey", e.target.value); }} placeholder="One-time encrypted key from holder" className="mt-1 font-mono" required />
+            <p className="text-xs text-muted-foreground mt-1">Holder generates this in Wallet → Generate claim key (2FA: DID + email OTP). Valid for one use only.</p>
           </div>
 
           <div>
@@ -131,7 +139,12 @@ const IssueCredential = () => {
             <Input id="institution" value={form.institution} onChange={(e) => update("institution", e.target.value)} placeholder="MIT University" className="mt-1" />
           </div>
 
-          <Button type="submit" size="lg" className="w-full gap-2" disabled={loading || !form.holderDID}>
+          {error && (
+            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+          <Button type="submit" size="lg" className="w-full gap-2" disabled={loading || !form.holderClaimKey}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Issue credential
           </Button>

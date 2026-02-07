@@ -4,6 +4,8 @@
  */
 const credentials = new Map(); // credentialId -> { credentialId, issuer, holder, type, credentialSubject, credential, status, issuanceDate }
 const dids = new Map();       // did -> { did, method, createdAt }
+const claimKeys = new Map();  // claimKey -> { claimKey, holderDID, used, usedAt, createdAt }
+const otpStore = new Map();   // key (did:email) -> { otp, expiresAt }
 
 const isConnected = () => false; // Used by services to check if we're using memory
 
@@ -50,10 +52,36 @@ const didStore = {
   },
 };
 
+const claimKeyStore = {
+  async save(doc) {
+    claimKeys.set(doc.claimKey, {
+      claimKey: doc.claimKey,
+      holderDID: doc.holderDID,
+      used: doc.used || false,
+      usedAt: doc.usedAt,
+      createdAt: doc.createdAt || new Date(),
+    });
+    return doc;
+  },
+  async findOne(query) {
+    const key = query.claimKey;
+    return claimKeys.get(key) || null;
+  },
+  async updateOne(query, update) {
+    const rec = claimKeys.get(query.claimKey);
+    if (!rec) return null;
+    Object.assign(rec, update);
+    return rec;
+  },
+};
+
 module.exports = {
   credentials,
   dids,
+  claimKeys,
+  otpStore,
   credentialStore,
   didStore,
+  claimKeyStore,
   isConnected,
 };

@@ -1,9 +1,9 @@
 /**
- * API client for IdentiX backend. All requests use relative /api (Vite proxy to backend).
+ * API client for IdentiX backend. Uses VITE_API_URL in production (Render), /api in dev (Vite proxy).
  */
 import type { Credential } from "./types";
 
-const API = "/api";
+const API = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL.replace(/\/$/, "")}` : "/api";
 const TIMEOUT = 10000;
 
 async function fetchApi<T>(
@@ -114,9 +114,26 @@ export const api = {
     }
   },
 
+  async requestClaimKeyOtp(did: string, email: string): Promise<{ message: string; otp?: string }> {
+    const out = await fetchApi<{ message: string; otp?: string }>("/claim-key/request-otp", {
+      method: "POST",
+      body: JSON.stringify({ did, email }),
+    });
+    return out.data;
+  },
+
+  async generateClaimKey(did: string, email: string, otp: string): Promise<{ claimKey: string }> {
+    const out = await fetchApi<{ claimKey: string }>("/claim-key/generate", {
+      method: "POST",
+      body: JSON.stringify({ did, email, otp }),
+    });
+    return out.data;
+  },
+
   async issueCredential(payload: {
     issuerDID: string;
-    holderDID: string;
+    holderDID?: string;
+    holderClaimKey?: string;
     credentialSubject: Record<string, unknown>;
     type: string | string[];
   }): Promise<BackendCredential> {
@@ -157,7 +174,8 @@ export const api = {
 /** Check if backend is reachable */
 export async function isBackendAvailable(): Promise<boolean> {
   try {
-    const res = await fetch("/health", { method: "GET" });
+    const base = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "") : "";
+    const res = await fetch(`${base}/health`, { method: "GET" });
     return res.ok;
   } catch {
     return false;

@@ -1,11 +1,11 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { CredentialCard } from "@/components/CredentialCard";
 import { CopyButton } from "@/components/CopyButton";
 import { useWallet } from "@/context/WalletContext";
 import { Button } from "@/components/ui/button";
-import { Inbox, RefreshCw, LogOut } from "lucide-react";
+import { Inbox, RefreshCw, LogOut, Key } from "lucide-react";
 import { DEMO_DID, demoCredentials } from "@/lib/demoData";
 
 const CredentialsList = () => {
@@ -42,19 +42,31 @@ const CredentialsList = () => {
 
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Credentials</h1>
-        <Button variant="ghost" size="sm" onClick={refreshCredentials} disabled={loading} className="gap-2">
-          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link to="/wallet/generate-claim-key">
+              <Key className="h-4 w-4" /> Generate claim key
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={refreshCredentials} disabled={loading} className="gap-2">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {activeCredentials.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Inbox className="mb-4 h-12 w-12 text-muted-foreground/40" />
           <h2 className="mb-2 text-lg font-semibold">No credentials yet</h2>
-          <p className="text-sm text-muted-foreground max-w-sm">
-            Share your DID with issuers to receive verifiable credentials.
+          <p className="text-sm text-muted-foreground max-w-sm mb-4">
+            Generate a one-time claim key and share it with issuers to receive verifiable credentials.
           </p>
+          <Button asChild>
+            <Link to="/wallet/generate-claim-key">
+              <Key className="h-4 w-4 mr-2" /> Generate claim key
+            </Link>
+          </Button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">

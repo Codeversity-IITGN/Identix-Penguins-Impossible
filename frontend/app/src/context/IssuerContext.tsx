@@ -67,37 +67,35 @@ export const IssuerProvider = ({ children }: { children: ReactNode }) => {
       data: Omit<
         Credential,
         "id" | "issuerDID" | "issuerName" | "issuedAt" | "status" | "signature"
-      >
+      > & { holderClaimKey?: string }
     ): Promise<Credential> => {
       if (!issuerDID) throw new Error("Not connected as issuer");
-      try {
-        const payload = {
-          issuerDID,
-          holderDID: data.holderDID,
-          type: ["VerifiableCredential", typeToBackend(data.type)],
-          credentialSubject: {
-            id: data.holderDID,
-            name: data.holderName,
-            ...data.subject,
-          },
-        };
-        const backend = await api.issueCredential(payload);
-        const cred = mapBackendCredentialToFrontend(backend);
-        setIssuedCredentials((prev) => [cred, ...prev]);
-        return cred;
-      } catch {
-        const cred: Credential = {
-          ...data,
-          id: `cred-${Date.now().toString(36)}`,
-          issuerDID,
-          issuerName: "Issuer",
-          issuedAt: new Date().toISOString(),
-          status: "active",
-          signature: undefined,
-        };
-        setIssuedCredentials((prev) => [cred, ...prev]);
-        return cred;
+      const payload: {
+        issuerDID: string;
+        holderDID?: string;
+        holderClaimKey?: string;
+        type: string[];
+        credentialSubject: Record<string, unknown>;
+      } = {
+        issuerDID,
+        type: ["VerifiableCredential", typeToBackend(data.type)],
+        credentialSubject: {
+          name: data.holderName,
+          ...data.subject,
+        },
+      };
+      if (data.holderClaimKey) {
+        payload.holderClaimKey = data.holderClaimKey;
+      } else if (data.holderDID) {
+        payload.holderDID = data.holderDID;
+        payload.credentialSubject = { id: data.holderDID, ...payload.credentialSubject };
+      } else {
+        throw new Error("Either holderClaimKey or holderDID is required");
       }
+      const backend = await api.issueCredential(payload);
+      const cred = mapBackendCredentialToFrontend(backend);
+      setIssuedCredentials((prev) => [cred, ...prev]);
+      return cred;
     },
     [issuerDID]
   );

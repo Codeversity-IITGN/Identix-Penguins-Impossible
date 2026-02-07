@@ -7,14 +7,21 @@ const { initVeramo } = require('./config/veramo');
 
 const didRoutes = require('./routes/did.routes');
 const credentialRoutes = require('./routes/credential.routes');
+const claimKeyRoutes = require('./routes/claimKey.routes');
 const blockchainRoutes = require('./routes/blockchain.routes');
 
 const app = express();
 
-// Middleware - CORS for all frontend origins (Wallet, Issuer, Verifier)
+// Middleware - CORS for frontend origins (localhost + Render production URL)
+const corsOrigins = [
+  'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003',
+  'http://127.0.0.1:3001', 'http://127.0.0.1:3002', 'http://127.0.0.1:3003',
+  'http://localhost:5173', 'http://127.0.0.1:5173',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+];
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
-  origin: ['http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://127.0.0.1:3001', 'http://127.0.0.1:3002', 'http://127.0.0.1:3003'],
+  origin: corsOrigins,
   credentials: true,
 }));
 app.use(express.json());
@@ -23,6 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/did', didRoutes);
 app.use('/api/credentials', credentialRoutes);
+app.use('/api/claim-key', claimKeyRoutes);
 app.use('/api/blockchain', blockchainRoutes);
 
 // Health check

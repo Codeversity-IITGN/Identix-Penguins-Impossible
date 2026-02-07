@@ -16,6 +16,7 @@ import RecoverWallet from "./pages/wallet/RecoverWallet";
 import CredentialsList from "./pages/wallet/CredentialsList";
 import CredentialDetail from "./pages/wallet/CredentialDetail";
 import ClaimCredential from "./pages/wallet/ClaimCredential";
+import GenerateClaimKey from "./pages/wallet/GenerateClaimKey";
 
 // Issuer
 import IssuerLogin from "./pages/issuer/IssuerLogin";
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/wallet/credentials" element={<CredentialsList />} />
               <Route path="/wallet/credential/:credentialId" element={<CredentialDetail />} />
               <Route path="/wallet/claim" element={<ClaimCredential />} />
+              <Route path="/wallet/generate-claim-key" element={<GenerateClaimKey />} />
 
               {/* Issuer */}
               <Route path="/issuer" element={<IssuerLogin />} />

@@ -2,18 +2,27 @@
 const credentialService = require('../services/credential.service');
 const verificationService = require('../services/verification.service');
 const revocationService = require('../services/revocation.service');
+const claimKeyService = require('../services/claimKey.service');
 
 const issueCredential = async (req, res, next) => {
     try {
-        const { issuerDID, holderDID, credentialSubject, type } = req.body || {};
-        if (!issuerDID || !holderDID) {
+        const { issuerDID, holderDID, holderClaimKey, credentialSubject, type } = req.body || {};
+        if (!issuerDID) {
             return res.status(400).json({
-                error: { message: 'issuerDID and holderDID are required', status: 400 },
+                error: { message: 'issuerDID is required', status: 400 },
+            });
+        }
+        let resolvedHolderDID = holderDID;
+        if (holderClaimKey) {
+            resolvedHolderDID = await claimKeyService.validateAndConsumeClaimKey(holderClaimKey);
+        } else if (!holderDID) {
+            return res.status(400).json({
+                error: { message: 'holderDID or holderClaimKey is required. Use holderClaimKey (one-time key from holder) for secure issuance.', status: 400 },
             });
         }
         const credential = await credentialService.issueCredential({
             issuerDID,
-            holderDID,
+            holderDID: resolvedHolderDID,
             credentialSubject: credentialSubject || {},
             type,
         });
