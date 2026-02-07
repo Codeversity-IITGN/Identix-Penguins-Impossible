@@ -78,6 +78,7 @@ identix-did-vc/
 - React
 - TailwindCSS
 - QR-based credential sharing
+- Favicon: `frontend/assets/link.png` (used as app icon)
 
 ---
 
