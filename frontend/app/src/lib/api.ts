@@ -75,8 +75,8 @@ export function mapBackendCredentialToFrontend(b: BackendCredential): Credential
 }
 
 export const api = {
-  async createDID(): Promise<{ did: string; keys?: unknown[]; services?: unknown[] }> {
-    const out = await fetchApi<{ did: string; keys?: unknown[]; services?: unknown[] }>(
+  async createDID(): Promise<{ did: string; seedPhrase: string; keys?: unknown[]; services?: unknown[] }> {
+    const out = await fetchApi<{ did: string; seedPhrase: string; keys?: unknown[]; services?: unknown[] }>(
       "/did/create",
       { method: "POST", body: JSON.stringify({ method: "ethr" }) }
     );

@@ -83,20 +83,17 @@ export const WalletProvider = ({ children }) => {
       const response = await axios.post(`${API_BASE_URL}/did/create`, {
         method: 'ethr',
       }, { timeout: 3000 })
-      const newDID = response.data.data.did
+      const data = response.data.data
+      const newDID = data.did
+      const seedPhrase = data.seedPhrase || generateMockSeedPhrase()
       setDid(newDID)
+      setSeedPhrase(seedPhrase)
       localStorage.setItem('identix_did', newDID)
-      
-      // Generate a mock seed phrase (in production, this would come from backend)
-      const mockSeedPhrase = generateMockSeedPhrase()
-      setSeedPhrase(mockSeedPhrase)
-      localStorage.setItem('identix_seed_phrase', mockSeedPhrase)
-      
+      localStorage.setItem('identix_seed_phrase', seedPhrase)
       await loadCredentials(newDID)
-      return { did: newDID, seedPhrase: mockSeedPhrase }
+      return { did: newDID, seedPhrase }
     } catch (error) {
       console.warn('Backend unavailable, using demo mode:', error.message)
-      // Use demo data when backend is unavailable
       enableDemoMode()
       setDid(DEMO_DID)
       setSeedPhrase(DEMO_SEED_PHRASE)

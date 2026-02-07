@@ -1,55 +1,53 @@
-// DID service
-const crypto = require('crypto');
+// DID service – unique BIP39 seed per wallet; recover validates and derives DID
+const { ethers } = require('ethers');
 const { getAgent } = require('../config/veramo');
 const DIDModel = require('../models/DID.model');
 const { isDbConnected } = require('../config/db');
 const { didStore } = require('../store/memoryStore');
 
-function generateEthAddress() {
-    const hex = crypto.randomBytes(20).toString('hex');
-    return `0x${hex}`;
-}
-
+/** Create a new DID with a unique 12-word BIP39 seed phrase. Returns did + seedPhrase. */
 const createDID = async (method = 'ethr', options = {}) => {
     try {
-        const agent = getAgent();
-        let did;
-        let identifier;
-        if (agent && typeof agent.didManagerCreate === 'function') {
-            try {
-                identifier = await agent.didManagerCreate({ provider: `did:${method}`, options });
-                did = identifier.did;
-            } catch (e) {
-                did = `did:ethr:${generateEthAddress()}`;
-            }
-        } else {
-            did = `did:ethr:${generateEthAddress()}`;
-        }
+        const wallet = ethers.Wallet.createRandom();
+        const seedPhrase = wallet.mnemonic.phrase;
+        const did = `did:ethr:${wallet.address}`;
+
         if (isDbConnected()) {
             const didRecord = new DIDModel({
                 did,
                 method,
-                controllerKeyId: identifier?.keys?.[0]?.kid,
-                document: identifier || { did },
+                controllerKeyId: null,
+                document: { did, keys: [], services: [] },
             });
             await didRecord.save();
         } else {
             await didStore.save({ did, method });
         }
-        return identifier && typeof identifier.toJSON === 'function'
-            ? identifier.toJSON()
-            : { did, keys: [], services: [] };
+
+        return { did, seedPhrase, keys: [], services: [] };
     } catch (error) {
         throw new Error(`Failed to create DID: ${error.message}`);
     }
 };
 
+/**
+ * Recover DID from seed phrase. Validates BIP39 (word list + checksum) before deriving.
+ * @throws Error if phrase is missing, invalid, or fails checksum
+ */
 const recoverDID = (seedPhrase) => {
-    const normalized = (seedPhrase || '').trim().toLowerCase();
+    const normalized = (seedPhrase || '').trim();
     if (!normalized) throw new Error('Seed phrase is required');
-    const hash = crypto.createHash('sha256').update(normalized).digest('hex');
-    const address = '0x' + hash.slice(0, 40);
-    return { did: `did:ethr:${address}`, keys: [], services: [] };
+
+    try {
+        const wallet = ethers.Wallet.fromPhrase(normalized);
+        const did = `did:ethr:${wallet.address}`;
+        return { did, keys: [], services: [] };
+    } catch (e) {
+        if (e.code === 'INVALID_ARGUMENT' || e.message?.includes('mnemonic') || e.message?.includes('checksum')) {
+            throw new Error('Invalid seed phrase. Please check that all 12 words are correct and try again.');
+        }
+        throw new Error('Invalid seed phrase. Please check the words and try again.');
+    }
 };
 
 const resolveDID = async (did) => {

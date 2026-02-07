@@ -2,6 +2,7 @@ import { createContext, useContext, useState, ReactNode, useCallback, useEffect 
 import { Credential } from "@/lib/types";
 import { demoCredentials, DEMO_DID, DEMO_SEED_PHRASE, generateDID } from "@/lib/demoData";
 import { api, mapBackendCredentialToFrontend } from "@/lib/api";
+import { Wallet } from "ethers";
 
 interface WalletContextType {
   did: string | null;
@@ -46,18 +47,21 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await api.createDID();
       const newDid = res.did;
+      const seedPhrase = res.seedPhrase;
       setDid(newDid);
       localStorage.setItem("identix-did", newDid);
       await loadCredentials(newDid);
       setLoading(false);
-      return { did: newDid, seedPhrase: DEMO_SEED_PHRASE };
+      return { did: newDid, seedPhrase };
     } catch {
-      const newDid = generateDID();
+      const wallet = Wallet.createRandom();
+      const newDid = `did:ethr:${wallet.address}`;
+      const seedPhrase = wallet.mnemonic?.phrase ?? "";
       setDid(newDid);
       localStorage.setItem("identix-did", newDid);
       setCredentials([]);
       setLoading(false);
-      return { did: newDid, seedPhrase: DEMO_SEED_PHRASE };
+      return { did: newDid, seedPhrase };
     }
   }, [loadCredentials]);
 
@@ -70,7 +74,12 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         setDid(recovered);
         localStorage.setItem("identix-did", recovered);
         await loadCredentials(recovered);
-      } catch {
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Recovery failed";
+        if (message.includes("Invalid seed phrase") || message.includes("seed phrase")) {
+          setLoading(false);
+          throw new Error(message);
+        }
         const recovered =
           seedPhrase.trim() === DEMO_SEED_PHRASE ? DEMO_DID : generateDID();
         setDid(recovered);

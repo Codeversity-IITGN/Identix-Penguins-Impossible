@@ -1,5 +1,7 @@
 # Deploy IdentiX to Render – Exact Steps
 
+**For a full roadmap including all recent changes (OTP/email, claim key, invalid key handling), see [DEPLOYMENT_ROADMAP.md](./DEPLOYMENT_ROADMAP.md).**
+
 ## Prerequisites
 
 - [Render](https://render.com) account (free)
@@ -45,11 +47,11 @@
    **Optional – OTP by email:** To send claim-key OTPs by email, add SMTP variables so users receive the OTP in their inbox. If you do *not* set these, the API will return the OTP in the response so the flow still works (the app will show/pre-fill the code).
    | Key | Value |
    |-----|-------|
-   | `SMTP_HOST` | e.g. `smtp.gmail.com` or your provider’s host |
+   | `SMTP_HOST` | **Server hostname, not an email.** e.g. `smtp.gmail.com`, `smtp.sendgrid.net`, `smtp.mailgun.org` |
    | `SMTP_PORT` | `587` (or `465` for TLS) |
-   | `SMTP_USER` | your SMTP username / email |
-   | `SMTP_PASS` | your SMTP password or app password |
-   | `SMTP_FROM` | (optional) sender address, defaults to `SMTP_USER` |
+   | `SMTP_USER` | **Login for that server:** often your email (e.g. `you@gmail.com`) or provider’s username (e.g. `apikey` for SendGrid) |
+   | `SMTP_PASS` | Your SMTP password or app password (for Gmail use an [App Password](https://support.google.com/accounts/answer/185833)) |
+   | `SMTP_FROM` | (optional) Sender address shown in emails; defaults to `SMTP_USER` |
 6. Click **Create Web Service**.
 7. Wait for first deploy. Copy the backend URL (e.g. `https://identix-backend.onrender.com`).
 

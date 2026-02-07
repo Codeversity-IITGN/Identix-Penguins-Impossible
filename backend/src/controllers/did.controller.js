@@ -53,6 +53,11 @@ const recoverDID = async (req, res, next) => {
         const data = didService.recoverDID(seedPhrase);
         res.status(200).json({ success: true, data });
     } catch (error) {
+        if (error.message && error.message.includes('Invalid seed phrase')) {
+            return res.status(400).json({
+                error: { message: error.message, status: 400 },
+            });
+        }
         next(error);
     }
 };

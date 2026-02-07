@@ -11,16 +11,24 @@ const RecoverWallet = () => {
   const navigate = useNavigate();
   const [phrase, setPhrase] = useState("");
   const [error, setError] = useState("");
+  const [verified, setVerified] = useState(false);
 
   const handleRecover = async () => {
-    const words = phrase.trim().split(/\s+/);
+    const words = phrase.trim().split(/\s+/).filter(Boolean);
     if (words.length !== 12) {
       setError("Please enter exactly 12 words.");
       return;
     }
     setError("");
-    await recoverDID(phrase);
-    navigate("/wallet/credentials");
+    setVerified(false);
+    try {
+      await recoverDID(phrase);
+      setVerified(true);
+      setTimeout(() => navigate("/wallet/credentials"), 800);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Recovery failed. Please check your seed phrase and try again.";
+      setError(message);
+    }
   };
 
   return (
@@ -41,9 +49,14 @@ const RecoverWallet = () => {
         />
         {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
 
+        {verified && (
+          <p className="mb-4 text-sm font-medium text-green-600 dark:text-green-400">
+            Seed phrase verified. Restoring your wallet…
+          </p>
+        )}
         <Button size="lg" className="mt-4 w-full gap-2" onClick={handleRecover} disabled={loading || !phrase.trim()}>
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          Recover wallet
+          {verified ? "Redirecting…" : "Verify and recover wallet"}
         </Button>
       </div>
     </AppLayout>
