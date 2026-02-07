@@ -1,0 +1,28 @@
+{
+  "name": "identix-did-vc",
+  "version": "1.0.0",
+  "description": "IdentiX - Decentralized Identity & Verifiable Credentials Platform",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend/wallet && npm install && cd ../issuer && npm install && cd ../verifier && npm install && cd ../../blockchain && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:wallet": "cd frontend/wallet && npm run dev",
+    "dev:issuer": "cd frontend/issuer && npm run dev",
+    "dev:verifier": "cd frontend/verifier && npm run dev",
+    "dev:app": "cd frontend/app && npm run dev",
+    "dev:blockchain": "cd blockchain && npx hardhat node",
+    "build:backend": "cd backend && npm install",
+    "build:frontend": "cd frontend/wallet && npm run build && cd ../issuer && npm run build && cd ../verifier && npm run build",
+    "test:backend": "cd backend && npm test",
+    "test:blockchain": "cd blockchain && npx hardhat test"
+  },
+  "keywords": [
+    "did",
+    "verifiable-credentials",
+    "blockchain",
+    "identity",
+    "decentralized"
+  ],
+  "author": "",
+  "license": "MIT"
+}

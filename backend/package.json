@@ -1,0 +1,36 @@
+{
+  "name": "identix-backend",
+  "version": "1.0.0",
+  "description": "IdentiX backend API for DID and Verifiable Credentials",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@veramo/core": "^4.2.0",
+    "@veramo/credential-w3c": "^4.2.0",
+    "@veramo/data-store": "^4.2.0",
+    "@veramo/did-manager": "^4.2.0",
+    "@veramo/did-resolver": "^4.2.0",
+    "@veramo/key-manager": "^4.2.0",
+    "@veramo/kms-local": "^4.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.7.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "typeorm": "^0.3.17"
+  },
+  "devDependencies": {
+    "jest": "^29.6.4",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  }
+}
