@@ -1,4 +1,5 @@
 const { encrypt, decrypt } = require('../utils/claimKeyEncryption');
+const { sendOtpEmail } = require('../utils/email');
 const ClaimKeyModel = require('../models/ClaimKey.model');
 const { isDbConnected } = require('../config/db');
 const { claimKeyStore, otpStore } = require('../store/memoryStore');
@@ -21,10 +22,14 @@ async function requestOTP(did, email) {
     const key = getOtpKey(did, email);
     const otp = generateOTP();
     otpStore.set(key, { otp, expiresAt: Date.now() + OTP_EXPIRY_MS });
-    // In production, send OTP via email. For demo without SMTP, log to console.
-    console.log(`[Claim Key OTP] DID: ${did}, Email: ${email} -> OTP: ${otp} (valid 5 min)`);
-    const result = { success: true, message: 'OTP sent to email' };
-    if (process.env.NODE_ENV !== 'production') {
+    const emailSent = await sendOtpEmail(email.trim(), otp);
+    if (emailSent) {
+        console.log(`[Claim Key OTP] Sent to ${email}`);
+    } else {
+        console.log(`[Claim Key OTP] Email not configured or send failed; OTP returned in response. DID: ${did}, Email: ${email}`);
+    }
+    const result = { success: true, message: emailSent ? 'OTP sent to email' : 'OTP sent to email (if you did not receive it, use the code below)' };
+    if (!emailSent) {
         result.otp = otp;
     }
     return result;

@@ -42,6 +42,14 @@
    | `PORT` | `3000` |
    | `DB_URI` or `MONGODB_URI` | `mongodb+srv://user:pass@cluster.mongodb.net/identix` |
    | `NODE_ENV` | `production` |
+   **Optional – OTP by email:** To send claim-key OTPs by email, add SMTP variables so users receive the OTP in their inbox. If you do *not* set these, the API will return the OTP in the response so the flow still works (the app will show/pre-fill the code).
+   | Key | Value |
+   |-----|-------|
+   | `SMTP_HOST` | e.g. `smtp.gmail.com` or your provider’s host |
+   | `SMTP_PORT` | `587` (or `465` for TLS) |
+   | `SMTP_USER` | your SMTP username / email |
+   | `SMTP_PASS` | your SMTP password or app password |
+   | `SMTP_FROM` | (optional) sender address, defaults to `SMTP_USER` |
 6. Click **Create Web Service**.
 7. Wait for first deploy. Copy the backend URL (e.g. `https://identix-backend.onrender.com`).
 
@@ -88,6 +96,13 @@
    - **Frontend:** `VITE_API_URL` is correct and ends with `/api`.
    - **Backend:** `DB_URI` is correct and MongoDB Atlas network access allows `0.0.0.0/0`.
    - **Backend:** `FRONTEND_URL` matches the frontend URL exactly.
+
+---
+
+## OTP / Claim key
+
+- **Without SMTP:** The backend does not send OTP by email. It returns the OTP in the API response so the “Generate claim key” flow works after deployment; the app will pre-fill the OTP when the API returns it.
+- **With SMTP:** Set `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` (and optionally `SMTP_PORT`, `SMTP_FROM`) so OTPs are sent to the user’s email and are not included in the API response.
 
 ---
 
