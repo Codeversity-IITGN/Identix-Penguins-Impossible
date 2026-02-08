@@ -264,10 +264,26 @@ const Index = () => {
                 Slide deck and technical overview of IdentiX.
               </p>
               <a
-                href="#"
-                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                href="/IDENTIX.pdf"
+                download="IDENTIX.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block overflow-hidden rounded-lg border border-white/10 bg-black/40"
               >
-                View presentation <ArrowRight className="h-3 w-3 rotate-[315deg]" />
+                <img
+                  src="/pptthumbnail.png"
+                  alt="IdentiX presentation preview"
+                  className="aspect-video w-full object-cover transition-opacity hover:opacity-90"
+                />
+              </a>
+              <a
+                href="/IDENTIX.pdf"
+                download="IDENTIX.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              >
+                Download presentation (PDF) <ArrowRight className="h-3 w-3 rotate-[315deg]" />
               </a>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 transition-transform duration-300 hover:scale-[1.05]">
@@ -279,10 +295,24 @@ const Index = () => {
                 End-to-end walkthrough of the credential flow.
               </p>
               <a
-                href="#"
-                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                href="https://youtu.be/31FMj0w_7Ss"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block overflow-hidden rounded-lg border border-white/10 bg-black/40 transition-opacity hover:opacity-90"
               >
-                Watch demo <ArrowRight className="h-3 w-3 rotate-[315deg]" />
+                <img
+                  src="/identiX.png"
+                  alt="IdentiX demo video — click to watch on YouTube"
+                  className="aspect-video w-full object-cover"
+                />
+              </a>
+              <a
+                href="https://youtu.be/31FMj0w_7Ss"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              >
+                Watch on YouTube <ArrowRight className="h-3 w-3 rotate-[315deg]" />
               </a>
             </div>
           </div>
